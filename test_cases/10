@@ -1,0 +1,3 @@
+var a: real is 0.0;
+var b: integer is 48;
+var c: real is a + b;

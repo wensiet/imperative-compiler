@@ -1,0 +1,8 @@
+var age: integer is 25;
+var status: boolean;
+if age < 18 then
+    status := false;
+else
+    status := true;
+end;
+print(status);

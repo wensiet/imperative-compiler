@@ -1,0 +1,3 @@
+var a: integer is 0;
+var b: boolean is false;
+var c: boolean is b and a;

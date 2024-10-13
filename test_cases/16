@@ -1,0 +1,9 @@
+type User is record {
+	var id: integer;
+	var age: integer;
+} end;
+
+type Admin is record {
+	var info: User;
+	var status: boolean;
+} end;

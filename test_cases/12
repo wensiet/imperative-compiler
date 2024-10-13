@@ -1,0 +1,8 @@
+routine isEven(number: integer): boolean is
+	if number % 2 = 0 then
+		return true;
+	end;
+	return true;
+end;
+
+var chetire: boolean is isEven(4);

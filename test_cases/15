@@ -1,0 +1,7 @@
+type User is record {
+	var id: integer;
+	var age: integer;
+} end;
+
+type Egor is User;
+var egorBeliy: Egor is {id is 51; age is 20;};

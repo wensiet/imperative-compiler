@@ -1,0 +1,8 @@
+type User is record {
+	var id: integer;
+	var age: integer;
+} end;
+
+var person: User is {id is 52; age is 20;};
+print(person.id);
+print(person.age);
