@@ -1,0 +1,5 @@
+routine ageStatus(age: integer): boolean is
+	return true;
+end;
+
+var ageStatus: integer is 52;
