@@ -61,7 +61,6 @@ public class SemanticAnalyzerVisitor extends ImperativeCompConstBaseVisitor<Void
     @Override
     public Void visitModifiable_primary(ImperativeCompConstParser.Modifiable_primaryContext ctx) {
         String varName = ctx.IDENT().getText();
-        System.out.println(varName);
         if (!symbolTable.containsKey(varName)) {
             throw new RuntimeException("Error: Variable '" + varName + "' is used before being declared.");
         }
