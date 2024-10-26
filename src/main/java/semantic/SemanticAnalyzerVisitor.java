@@ -25,7 +25,6 @@ public class SemanticAnalyzerVisitor extends ImperativeCompConstBaseVisitor<Void
     public Void visitRoutine_declaration(ImperativeCompConstParser.Routine_declarationContext ctx) {
         String routineName = ctx.IDENT().getText();
         setNewObject(routineName);
-        symbolTable.put(routineName, "routine");
         inRoutine = true;
         saveRoutineParameters(ctx.parameter_declarations());
         visitChildren(ctx);
@@ -82,7 +81,7 @@ public class SemanticAnalyzerVisitor extends ImperativeCompConstBaseVisitor<Void
         if ("print".equals(routineName)) {
             return visitChildren(ctx);
         }
-        if (!symbolTable.containsKey(routineName) || !"routine".equals(symbolTable.get(routineName))) {
+        if (!symbolTable.containsKey(routineName)) {
             throw new RuntimeException("Error: Routine '" + routineName + "' is called before being declared.");
         }
         return visitChildren(ctx);
