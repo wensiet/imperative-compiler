@@ -50,8 +50,14 @@ public class GenRunner {
             semanticVisitor.visit(parseTree);
 
             // optimize
+            System.out.println("before");
+            System.out.println(parseTree.toStringTree(parser));
+
             BranchOptimizerVisitor branchOptimizerVisitor = new BranchOptimizerVisitor();
             branchOptimizerVisitor.visit(parseTree);
+
+            System.out.println("after");
+            System.out.println(parseTree.toStringTree(parser));
 
             System.out.println(ANSI_GREEN + "PASSED" + ANSI_RESET);
         } catch (Exception e) {
