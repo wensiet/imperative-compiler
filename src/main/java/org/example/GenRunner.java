@@ -4,6 +4,8 @@ import gen.ImperativeCompConstLexer;
 import gen.ImperativeCompConstParser;
 import org.antlr.v4.runtime.*;
 import self.Runner;
+import semantic.BranchOptimizerVisitor;
+import semantic.Optimizer;
 import semantic.ReductionOptimizerVisitor;
 import semantic.SemanticAnalyzerVisitor;
 import utils.TreeUtils;
@@ -54,9 +56,9 @@ public class GenRunner {
             List<String> ruleNamesList = Arrays.asList(parser.getRuleNames());
             String originalTree = TreeUtils.toPrettyTree(parseTree, ruleNamesList);
 
-            // Optimization
-            ReductionOptimizerVisitor reductionOptimizerVisitor = new ReductionOptimizerVisitor();
-            reductionOptimizerVisitor.visit(parseTree);
+            // Optimizer
+            Optimizer optimizer = new Optimizer();
+            optimizer.optimize(parseTree);
 
             // Printing
             String reducedTree = TreeUtils.toPrettyTree(parseTree, ruleNamesList);

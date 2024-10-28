@@ -1,1 +1,7 @@
-var a: integer is 1000+1000;
+var age: integer is 25;
+var status: boolean;
+if true then
+    status := false;
+else
+    status := true;
+end;
