@@ -4,7 +4,7 @@ import gen.ImperativeCompConstBaseVisitor;
 import gen.ImperativeCompConstParser;
 import org.antlr.v4.runtime.tree.ParseTree;
 
-public class ASTOptimizerVisitor extends ImperativeCompConstBaseVisitor<Void> {
+public class BranchOptimizerVisitor extends ImperativeCompConstBaseVisitor<Void> {
     @Override
     public Void visitIf_statement(ImperativeCompConstParser.If_statementContext ctx) {
         if (isConstantExpression(ctx.expression())) {
