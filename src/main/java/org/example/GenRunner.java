@@ -4,6 +4,7 @@ import gen.ImperativeCompConstLexer;
 import gen.ImperativeCompConstParser;
 import org.antlr.v4.runtime.*;
 import self.Runner;
+import semantic.OptimizationVisitor;
 import semantic.SemanticAnalyzerVisitor;
 
 import java.io.File;
@@ -48,6 +49,15 @@ public class GenRunner {
             ImperativeCompConstParser.InputContext parseTree = parser.input();
             semanticVisitor.visit(parseTree);
 
+            System.out.println("before");
+            System.out.println(parseTree.toStringTree(parser));
+            // Optimization
+            OptimizationVisitor optimizationVisitor = new OptimizationVisitor();
+            optimizationVisitor.visit(parseTree);
+
+            System.out.println("after");
+            System.out.println(parseTree.toStringTree(parser));
+
             System.out.println(ANSI_GREEN + "PASSED" + ANSI_RESET);
         } catch (Exception e) {
             Thread.sleep(500);
@@ -70,6 +80,7 @@ public class GenRunner {
                 String testInput = Runner.readFile(testCase);
                 System.out.println("Input:\n" + testInput);
                 processInput(testInput);
+                break;
             }
         } else {
             System.out.println("No test cases found in directory: " + testCasesFileDirectory);
