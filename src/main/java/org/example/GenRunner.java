@@ -4,11 +4,13 @@ import gen.ImperativeCompConstLexer;
 import gen.ImperativeCompConstParser;
 import org.antlr.v4.runtime.*;
 import self.Runner;
-import semantic.OptimizationVisitor;
+import semantic.ReductionOptimizerVisitor;
 import semantic.SemanticAnalyzerVisitor;
+import utils.TreeUtils;
 
 import java.io.File;
 import java.util.Arrays;
+import java.util.List;
 
 class ThrowingErrorStrategy extends DefaultErrorStrategy {
 
@@ -49,14 +51,21 @@ public class GenRunner {
             ImperativeCompConstParser.InputContext parseTree = parser.input();
             semanticVisitor.visit(parseTree);
 
-            System.out.println("before");
-            System.out.println(parseTree.toStringTree(parser));
-            // Optimization
-            OptimizationVisitor optimizationVisitor = new OptimizationVisitor();
-            optimizationVisitor.visit(parseTree);
+            List<String> ruleNamesList = Arrays.asList(parser.getRuleNames());
+            String originalTree = TreeUtils.toPrettyTree(parseTree, ruleNamesList);
 
-            System.out.println("after");
-            System.out.println(parseTree.toStringTree(parser));
+            // Optimization
+            ReductionOptimizerVisitor reductionOptimizerVisitor = new ReductionOptimizerVisitor();
+            reductionOptimizerVisitor.visit(parseTree);
+
+            // Printing
+            String reducedTree = TreeUtils.toPrettyTree(parseTree, ruleNamesList);
+            if (!originalTree.equals(reducedTree)) {
+                System.out.println("Original Tree:\n" + originalTree);
+                System.out.println("\nOptimized Tree:\n" + reducedTree);
+            } else {
+                System.out.println("No changes made to the tree.");
+            }
 
             System.out.println(ANSI_GREEN + "PASSED" + ANSI_RESET);
         } catch (Exception e) {
@@ -80,7 +89,6 @@ public class GenRunner {
                 String testInput = Runner.readFile(testCase);
                 System.out.println("Input:\n" + testInput);
                 processInput(testInput);
-                break;
             }
         } else {
             System.out.println("No test cases found in directory: " + testCasesFileDirectory);
