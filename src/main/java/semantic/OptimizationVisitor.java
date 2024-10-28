@@ -71,11 +71,14 @@ public class OptimizationVisitor extends ImperativeCompConstBaseVisitor<Object> 
                     TerminalNodeImpl newIntNode = new TerminalNodeImpl(new CommonToken(ImperativeCompConstParser.INT, Integer.toString(sum)));
                     newPrimary.addChild(newIntNode);
 
-                    // Clear all children of FactorContext and add the new PrimaryContext directly
+                    // Clear all children in ctx and replace with the optimized PrimaryContext wrapped in Summand
                     while (ctx.getChildCount() > 0) {
                         ctx.removeLastChild();
                     }
-                    ctx.addAnyChild(newPrimary);
+
+                    ImperativeCompConstParser.SummandContext newSummand = new ImperativeCompConstParser.SummandContext(ctx, ctx.invokingState);
+                    newSummand.addChild(newPrimary);
+                    ctx.addAnyChild(newSummand);
 
                     return null;
                 }
