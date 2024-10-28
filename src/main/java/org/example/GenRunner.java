@@ -4,9 +4,15 @@ import gen.ImperativeCompConstLexer;
 import gen.ImperativeCompConstParser;
 import org.antlr.v4.runtime.*;
 import self.Runner;
+import semantic.BranchOptimizerVisitor;
+import semantic.Optimizer;
+import semantic.ReductionOptimizerVisitor;
+import semantic.SemanticAnalyzerVisitor;
+import utils.TreeUtils;
 
 import java.io.File;
 import java.util.Arrays;
+import java.util.List;
 
 class ThrowingErrorStrategy extends DefaultErrorStrategy {
 
@@ -35,10 +41,34 @@ public class GenRunner {
 
     private static void processInput(String input) throws InterruptedException {
         try {
+            // Lexer
             ImperativeCompConstLexer lexer = new ImperativeCompConstLexer(CharStreams.fromString(input));
+
+            // Parser
             ImperativeCompConstParser parser = new ImperativeCompConstParser(new CommonTokenStream(lexer));
             parser.setErrorHandler(new ThrowingErrorStrategy());
-            parser.input();
+
+            // Semantic
+            SemanticAnalyzerVisitor semanticVisitor = new SemanticAnalyzerVisitor();
+            ImperativeCompConstParser.InputContext parseTree = parser.input();
+            semanticVisitor.visit(parseTree);
+
+            List<String> ruleNamesList = Arrays.asList(parser.getRuleNames());
+            String originalTree = TreeUtils.toPrettyTree(parseTree, ruleNamesList);
+
+            // Optimizer
+            Optimizer optimizer = new Optimizer();
+            optimizer.optimize(parseTree);
+
+            // Printing
+            String reducedTree = TreeUtils.toPrettyTree(parseTree, ruleNamesList);
+            if (!originalTree.equals(reducedTree)) {
+                System.out.println("Original Tree:\n" + originalTree);
+                System.out.println("\nOptimized Tree:\n" + reducedTree);
+            } else {
+                System.out.println("No changes made to the tree.");
+            }
+
             System.out.println(ANSI_GREEN + "PASSED" + ANSI_RESET);
         } catch (Exception e) {
             Thread.sleep(500);
