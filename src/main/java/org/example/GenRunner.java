@@ -4,6 +4,7 @@ import gen.ImperativeCompConstLexer;
 import gen.ImperativeCompConstParser;
 import org.antlr.v4.runtime.*;
 import self.Runner;
+import semantic.ASTOptimizerVisitor;
 import semantic.SemanticAnalyzerVisitor;
 
 import java.io.File;
@@ -47,6 +48,10 @@ public class GenRunner {
             SemanticAnalyzerVisitor semanticVisitor = new SemanticAnalyzerVisitor();
             ImperativeCompConstParser.InputContext parseTree = parser.input();
             semanticVisitor.visit(parseTree);
+
+            // optimize
+            ASTOptimizerVisitor astOptimizerVisitor = new ASTOptimizerVisitor();
+            astOptimizerVisitor.visit(parseTree);
 
             System.out.println(ANSI_GREEN + "PASSED" + ANSI_RESET);
         } catch (Exception e) {
