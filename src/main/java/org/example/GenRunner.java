@@ -64,6 +64,7 @@ public class GenRunner {
             // Compiler
             CompileVisitor compileVisitor = new CompileVisitor();
             compileVisitor.visit(parseTree);
+            System.out.println(compileVisitor.getJasminCode());
 
             // Printing
 //            String reducedTree = TreeUtils.toPrettyTree(parseTree, ruleNamesList);
