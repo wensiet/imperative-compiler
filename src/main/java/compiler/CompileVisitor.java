@@ -28,6 +28,7 @@ public class CompileVisitor extends ImperativeCompConstBaseVisitor<Void> {
 
         super.visitProgram(ctx);
 
+        appendNewLine("return");
         appendNewLine(".end method");
 
         return null;
@@ -70,10 +71,10 @@ public class CompileVisitor extends ImperativeCompConstBaseVisitor<Void> {
     public Void visitModifiable_primary(ImperativeCompConstParser.Modifiable_primaryContext ctx) {
         if (ctx.IDENT() != null) {
             String variableName = ctx.IDENT().getText();
-            appendNewLine("aload " + variableTable.get(variableName));
+            appendNewLine("iload " + variableTable.get(variableName));
         } else if (ctx.LBRACKET() != null && ctx.RBRACKET() != null) {
             visit(ctx.modifiable_primary());
-            appendNewLine("iaload");
+            appendNewLine("iload");
         } else if (ctx.PERIOD() != null) {
             visit(ctx.modifiable_primary());
             String fieldName = ctx.IDENT().getText();
@@ -84,13 +85,15 @@ public class CompileVisitor extends ImperativeCompConstBaseVisitor<Void> {
 
     @Override
     public Void visitRoutine_call(ImperativeCompConstParser.Routine_callContext ctx) {
-        appendNewLine("getstatic java/lang/System/out Ljava/io/PrintStream;");
+        if (ctx.IDENT().getText().equals("print")) {
+            appendNewLine("getstatic java/lang/System/out Ljava/io/PrintStream;");
 
-        if (ctx.routine_call_arguments() != null) {
-            visit(ctx.routine_call_arguments());
+            if (ctx.routine_call_arguments() != null) {
+                visit(ctx.routine_call_arguments());
+            }
+
+            appendNewLine("invokevirtual java/io/PrintStream/println(I)V");
         }
-
-        appendNewLine("invokevirtual java/io/PrintStream/println(Ljava/lang/String;)V");
 
         return null;
     }
