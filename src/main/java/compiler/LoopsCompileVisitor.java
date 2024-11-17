@@ -1,4 +1,4 @@
 package compiler;
 
-public class LoopsCompileVisitor extends IfCompileVisitor{
+public class LoopsCompileVisitor extends IfCompileVisitor {
 }

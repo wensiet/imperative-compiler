@@ -5,7 +5,7 @@ import gen.ImperativeCompConstParser;
 public class ExpressionCompileVisitor extends BaseCompileVisitor {
     @Override
     public Void visitExpression(ImperativeCompConstParser.ExpressionContext ctx) {
-        if (ctx.relation() != null) {
+        if (ctx.relation() != null && ctx.relation().size() == 1) {
             // Handle a simple relation (comparison or value)
             visit(ctx.relation(0));
         } else if (ctx.relation(0) != null && ctx.AND() != null) {
@@ -43,30 +43,30 @@ public class ExpressionCompileVisitor extends BaseCompileVisitor {
             visit(ctx.simple(1));
 
             // Check which comparison operator we're dealing with and emit the corresponding Jasmin code
+            String labelTrue = generateLabel();
             if (ctx.LSS() != null) {
-                appendln("if_icmplt label_true"); // less than (LSS)
+                appendln("if_icmplt " + labelTrue); // less than (LSS)
             } else if (ctx.LEQ() != null) {
-                appendln("if_icmple label_true"); // less than or equal to (LEQ)
+                appendln("if_icmple " + labelTrue); // less than or equal to (LEQ)
             } else if (ctx.GTR() != null) {
-                appendln("if_icmpgt label_true"); // greater than (GTR)
+                appendln("if_icmpgt " + labelTrue); // greater than (GTR)
             } else if (ctx.GEQ() != null) {
-                appendln("if_icmpge label_true"); // greater than or equal to (GEQ)
+                appendln("if_icmpge " + labelTrue); // greater than or equal to (GEQ)
             } else if (ctx.EQL() != null) {
-                appendln("if_icmpeq label_true"); // equal to (EQL)
+                appendln("if_icmpeq " + labelTrue); // equal to (EQL)
             } else if (ctx.NEQ() != null) {
-                appendln("if_icmpne label_true"); // not equal to (NEQ)
+                appendln("if_icmpne " + labelTrue); // not equal to (NEQ)
             }
 
-            // After the comparison, if the condition is true, jump to the label "label_true"
-            appendln("iconst_0"); // Push 0 (false) to stack if not true
-            appendln("goto label_end");
+            String labelEnd = generateLabel();
 
-            // Label for the true case
-            appendln("label_true:");
+            appendln("iconst_0"); // Push 0 (false) to stack if not true
+            appendln("goto " + labelEnd);
+
+            appendln(labelTrue + ":");
             appendln("iconst_1"); // Push 1 (true) to stack
 
-            // End label
-            appendln("label_end:");
+            appendln(labelEnd + ":");
         }
         return null;
     }
@@ -127,11 +127,11 @@ public class ExpressionCompileVisitor extends BaseCompileVisitor {
     public Void visitSummand(ImperativeCompConstParser.SummandContext ctx) {
         // If the summand is a primary
         if (ctx.primary() != null) {
-            visit(ctx.primary());  // Visit the primary expression (e.g., variable or constant)
+            visit(ctx.primary());
         }
         // If the summand is an expression inside parentheses
         else if (ctx.LPAREN() != null && ctx.RPAREN() != null) {
-            visit(ctx.expression());  // Visit the expression inside parentheses
+            visit(ctx.expression());
         }
         return null;
     }
@@ -169,7 +169,7 @@ public class ExpressionCompileVisitor extends BaseCompileVisitor {
 
             switch (type) {
                 case "integer" -> appendln("iload " + idx + " ; load integer variable");
-                case "float" -> appendln("fload " + idx + " ; load float variable");
+                case "real" -> appendln("fload " + idx + " ; load float variable");
                 case "boolean" -> appendln("iload " + idx + " ; load boolean variable");
                 default -> appendln("aload " + idx + " ; load reference variable");
             }

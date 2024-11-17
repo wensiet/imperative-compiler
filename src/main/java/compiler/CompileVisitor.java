@@ -18,11 +18,10 @@ public class CompileVisitor extends DeclarationCompileVisitor {
         appendln("return");
         appendln(".end method");
 
-        System.out.println("\n\n");
+        System.out.println("\nVars:");
         for (var snus : variableTable.values()) {
             System.out.println(snus);
         }
-        System.out.println("\n\n");
 
         return null;
     }

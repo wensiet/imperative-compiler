@@ -12,6 +12,8 @@ import semantic.SemanticAnalyzerVisitor;
 import utils.TreeUtils;
 
 import java.io.File;
+import java.io.FileWriter;
+import java.io.IOException;
 import java.util.Arrays;
 import java.util.List;
 
@@ -51,20 +53,24 @@ public class GenRunner {
             ImperativeCompConstParser.InputContext parseTree = parser.input();
 
             // Semantic
-            SemanticAnalyzerVisitor semanticVisitor = new SemanticAnalyzerVisitor();
-            semanticVisitor.visit(parseTree);
-
-            List<String> ruleNamesList = Arrays.asList(parser.getRuleNames());
-            String originalTree = TreeUtils.toPrettyTree(parseTree, ruleNamesList);
+//            SemanticAnalyzerVisitor semanticVisitor = new SemanticAnalyzerVisitor();
+//            semanticVisitor.visit(parseTree);
+//
+//            List<String> ruleNamesList = Arrays.asList(parser.getRuleNames());
+//            String originalTree = TreeUtils.toPrettyTree(parseTree, ruleNamesList);
 
             // Optimizer
-            Optimizer optimizer = new Optimizer();
-            optimizer.optimize(parseTree);
+//            Optimizer optimizer = new Optimizer();
+//            optimizer.optimize(parseTree);
 
             // Compiler
             CompileVisitor compileVisitor = new CompileVisitor();
             compileVisitor.visit(parseTree);
-            System.out.println(compileVisitor.getJasminCode());
+            try (FileWriter fileWriter = new FileWriter("TestRun.j")) {
+                fileWriter.write(compileVisitor.getJasminCode());
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
 
             // Printing
 //            String reducedTree = TreeUtils.toPrettyTree(parseTree, ruleNamesList);

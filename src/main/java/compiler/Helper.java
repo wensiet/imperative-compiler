@@ -8,4 +8,9 @@ public class Helper {
         this.idx = idx;
         this.type = type;
     }
+
+    @Override
+    public String toString() {
+        return "Helper{" + "idx=" + idx + ", type='" + type + '\'' + '}';
+    }
 }

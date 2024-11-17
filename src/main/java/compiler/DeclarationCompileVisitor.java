@@ -13,7 +13,7 @@ public class DeclarationCompileVisitor extends TypeCompileVisitor {
         super.visitVariable_declaration(ctx);
         switch (varType) {
             case "integer" -> appendln("istore " + idx + " ; store integer variable");
-            case "float" -> appendln("fstore " + idx + " ; store float variable");
+            case "real" -> appendln("fstore " + idx + " ; store float variable");
             case "boolean" -> appendln("istore " + idx + " ; store boolean variable");
             default -> appendln("astore " + idx + " ; store reference variable");
         }
