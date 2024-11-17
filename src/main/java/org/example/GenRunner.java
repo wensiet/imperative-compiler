@@ -1,5 +1,6 @@
 package org.example;
 
+import compiler.CompileVisitor;
 import gen.ImperativeCompConstLexer;
 import gen.ImperativeCompConstParser;
 import org.antlr.v4.runtime.*;
@@ -47,10 +48,10 @@ public class GenRunner {
             // Parser
             ImperativeCompConstParser parser = new ImperativeCompConstParser(new CommonTokenStream(lexer));
             parser.setErrorHandler(new ThrowingErrorStrategy());
+            ImperativeCompConstParser.InputContext parseTree = parser.input();
 
             // Semantic
             SemanticAnalyzerVisitor semanticVisitor = new SemanticAnalyzerVisitor();
-            ImperativeCompConstParser.InputContext parseTree = parser.input();
             semanticVisitor.visit(parseTree);
 
             List<String> ruleNamesList = Arrays.asList(parser.getRuleNames());
@@ -60,14 +61,18 @@ public class GenRunner {
             Optimizer optimizer = new Optimizer();
             optimizer.optimize(parseTree);
 
+            // Compiler
+            CompileVisitor compileVisitor = new CompileVisitor();
+            compileVisitor.visit(parseTree);
+
             // Printing
-            String reducedTree = TreeUtils.toPrettyTree(parseTree, ruleNamesList);
-            if (!originalTree.equals(reducedTree)) {
-                System.out.println("Original Tree:\n" + originalTree);
-                System.out.println("\nOptimized Tree:\n" + reducedTree);
-            } else {
-                System.out.println("No changes made to the tree.");
-            }
+//            String reducedTree = TreeUtils.toPrettyTree(parseTree, ruleNamesList);
+//            if (!originalTree.equals(reducedTree)) {
+//                System.out.println("Original Tree:\n" + originalTree);
+//                System.out.println("\nOptimized Tree:\n" + reducedTree);
+//            } else {
+//                System.out.println("No changes made to the tree.");
+//            }
 
             System.out.println(ANSI_GREEN + "PASSED" + ANSI_RESET);
         } catch (Exception e) {
@@ -91,6 +96,7 @@ public class GenRunner {
                 String testInput = Runner.readFile(testCase);
                 System.out.println("Input:\n" + testInput);
                 processInput(testInput);
+                break;
             }
         } else {
             System.out.println("No test cases found in directory: " + testCasesFileDirectory);
