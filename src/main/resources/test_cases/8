@@ -1,0 +1,4 @@
+var a: integer is 52;
+var b: integer is 48;
+var c: integer is a + b;
+print(c);

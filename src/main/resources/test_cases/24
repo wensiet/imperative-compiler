@@ -1,0 +1,3 @@
+var a: integer is 52;
+var a: integer is 68;
+print(a);

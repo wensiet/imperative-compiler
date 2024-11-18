@@ -1,0 +1,6 @@
+routine ageStatus(age: integer): boolean is
+    if age < 18 then
+		return false;
+    end;
+	return true;
+end;
