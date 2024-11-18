@@ -2,6 +2,9 @@ package compiler;
 
 import gen.ImperativeCompConstParser;
 
+import java.util.ArrayList;
+import java.util.List;
+
 public class ExpressionCompileVisitor extends BaseCompileVisitor {
     @Override
     public Void visitExpression(ImperativeCompConstParser.ExpressionContext ctx) {
@@ -156,32 +159,58 @@ public class ExpressionCompileVisitor extends BaseCompileVisitor {
 
     @Override
     public Void visitModifiable_primary(ImperativeCompConstParser.Modifiable_primaryContext ctx) {
-        if (ctx.IDENT() != null) {
-            String variableName = ctx.IDENT().getText();
-            Helper helper = variableTable.get(variableName);
+        // Start by flattening the access chain into a list
+        List<String> accessChain = new ArrayList<>();
+        ImperativeCompConstParser.Modifiable_primaryContext currentCtx = ctx;
 
-            if (helper == null) {
-                throw new IllegalStateException("Variable '" + variableName + "' is not defined");
+        while (currentCtx != null) {
+            if (currentCtx.IDENT() != null) {
+                // Add the identifier (field or variable) to the access chain
+                accessChain.addFirst(currentCtx.IDENT().getText());
             }
-
-            String type = helper.type;
-            Integer idx = helper.idx;
-
-            switch (type) {
-                case "integer" -> appendln("iload " + idx + " ; load integer variable");
-                case "real" -> appendln("fload " + idx + " ; load float variable");
-                case "boolean" -> appendln("iload " + idx + " ; load boolean variable");
-                default -> appendln("aload " + idx + " ; load reference variable");
-            }
-        } else if (ctx.LBRACKET() != null && ctx.RBRACKET() != null) {
-            visit(ctx.modifiable_primary());
-            visit(ctx.expression());
-            appendln("iaload ; array element load");
-        } else if (ctx.PERIOD() != null) {
-            visit(ctx.modifiable_primary());
-            String fieldName = ctx.IDENT().getText();
-            appendln("getfield <TODO_CLASS_NAME>/" + fieldName + " TODO_DESCRIPTOR ; field access");
+            // Traverse up the parse tree to process the next part of the chain
+            currentCtx = currentCtx.modifiable_primary();
         }
+
+        // Resolve the base variable
+        String baseVarName = accessChain.removeFirst();
+        Helper baseVarHelper = variableTable.get(baseVarName);
+        if (baseVarHelper == null) {
+            throw new IllegalStateException("Variable '" + baseVarName + "' is not defined");
+        }
+
+        String currentType = baseVarHelper.type;
+
+        // Load the base variable onto the stack
+        int baseVarIdx = baseVarHelper.idx;
+        switch (currentType) {
+            case "integer" -> appendln("iload " + baseVarIdx + " ; load integer variable");
+            case "real" -> appendln("fload " + baseVarIdx + " ; load float variable");
+            case "boolean" -> appendln("iload " + baseVarIdx + " ; load boolean variable");
+            default -> appendln("aload " + baseVarIdx + " ; load reference variable");
+        }
+
+        // Iteratively resolve each field in the chain
+        for (String fieldName : accessChain) {
+            // Ensure the current type is a record
+            UserDefinedType recordType = userDefinedTypes.get(currentType);
+            if (recordType == null) {
+                throw new IllegalStateException("Type '" + currentType + "' is not a user-defined record");
+            }
+
+            // Get the field type
+            String fieldType = recordType.fields.get(fieldName);
+            if (fieldType == null) {
+                throw new IllegalStateException("Field '" + fieldName + "' is not defined in record type '" + currentType + "'");
+            }
+
+            // Emit code to access the field
+            appendln("getfield " + currentType + "/" + fieldName + " " + mapType(fieldType));
+
+            // Update the current type to the field type
+            currentType = fieldType;
+        }
+
         return null;
     }
 }

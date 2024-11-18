@@ -7,3 +7,15 @@ type Admin is record {
 	var info: User;
 	var status: boolean;
 } end;
+
+var egor: User is {
+    id is 52;
+    age is 52;
+};
+
+var adminka: Admin is {
+    info is egor;
+    status is true;
+};
+
+print(adminka.info.id);

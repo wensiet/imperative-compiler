@@ -14,6 +14,7 @@ import utils.TreeUtils;
 import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
@@ -43,35 +44,52 @@ public class GenRunner {
 
 
     private static void processInput(String input) throws InterruptedException {
-        try {
-            // Lexer
-            ImperativeCompConstLexer lexer = new ImperativeCompConstLexer(CharStreams.fromString(input));
+        // Lexer
+        ImperativeCompConstLexer lexer = new ImperativeCompConstLexer(CharStreams.fromString(input));
 
-            // Parser
-            ImperativeCompConstParser parser = new ImperativeCompConstParser(new CommonTokenStream(lexer));
-            parser.setErrorHandler(new ThrowingErrorStrategy());
-            ImperativeCompConstParser.InputContext parseTree = parser.input();
+        // Parser
+        ImperativeCompConstParser parser = new ImperativeCompConstParser(new CommonTokenStream(lexer));
+        parser.setErrorHandler(new ThrowingErrorStrategy());
+        ImperativeCompConstParser.InputContext parseTree = parser.input();
 
-            // Semantic
-//            SemanticAnalyzerVisitor semanticVisitor = new SemanticAnalyzerVisitor();
-//            semanticVisitor.visit(parseTree);
-//
-//            List<String> ruleNamesList = Arrays.asList(parser.getRuleNames());
-//            String originalTree = TreeUtils.toPrettyTree(parseTree, ruleNamesList);
+        // Semantic
+        SemanticAnalyzerVisitor semanticVisitor = new SemanticAnalyzerVisitor();
+        semanticVisitor.visit(parseTree);
 
-            // Optimizer
-//            Optimizer optimizer = new Optimizer();
-//            optimizer.optimize(parseTree);
+        List<String> ruleNamesList = Arrays.asList(parser.getRuleNames());
+        String originalTree = TreeUtils.toPrettyTree(parseTree, ruleNamesList);
 
-            // Compiler
-            CompileVisitor compileVisitor = new CompileVisitor();
-            compileVisitor.visit(parseTree);
-            try (FileWriter fileWriter = new FileWriter("TestRun.j")) {
-                fileWriter.write(compileVisitor.getJasminCode());
+        // Optimizer
+        Optimizer optimizer = new Optimizer();
+        optimizer.optimize(parseTree);
+
+        // Compiler
+        List<String> files = new ArrayList<>();
+        CompileVisitor compileVisitor = new CompileVisitor();
+        compileVisitor.visit(parseTree);
+        try (FileWriter fileWriter = new FileWriter("TestRun.j")) {
+            fileWriter.write(compileVisitor.getJasminCode());
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        files.add("TestRun.j");
+        for (var record : compileVisitor.getRecords()) {
+            String fileName = record.name + ".j";
+            try (FileWriter fileWriter = new FileWriter(fileName)) {
+                fileWriter.write(record.code);
             } catch (IOException e) {
                 e.printStackTrace();
             }
+            files.add(fileName);
+        }
+        StringBuilder codeGenCommand = new StringBuilder();
+        codeGenCommand.append("jasmin ");
+        for (String fileName : files) {
+            codeGenCommand.append(fileName).append(" ");
+        }
+        System.out.println(codeGenCommand);
 
+        try {
             // Printing
 //            String reducedTree = TreeUtils.toPrettyTree(parseTree, ruleNamesList);
 //            if (!originalTree.equals(reducedTree)) {
