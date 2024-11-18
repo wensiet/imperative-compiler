@@ -2,7 +2,12 @@ package compiler;
 
 import gen.ImperativeCompConstParser;
 
+import java.util.HashMap;
+import java.util.Map;
+
 public class TypeCompileVisitor extends BodyCompileVisitor {
+    Map<String, Integer> arrayTable = new HashMap<>();
+
     @Override
     public Void visitType_declaration(ImperativeCompConstParser.Type_declarationContext ctx) {
         if (ctx.type().record_type() != null) {
@@ -54,7 +59,52 @@ public class TypeCompileVisitor extends BodyCompileVisitor {
             appendln("putfield " + varType + "/" + fieldName + " " + mapType(primType));
             fieldAss = fieldAss.record_field_assignments();
         }
+        return null;
+    }
 
+    @Override
+    public Void visitArray_variable_declaration(ImperativeCompConstParser.Array_variable_declarationContext ctx) {
+        String varName = ctx.IDENT().getText();
+        String varType = ctx.type().getText();
+        Integer idx = stackIndex++;
+
+        variableTable.put(varName, new Helper(idx, varType));
+
+        var arraySize = Integer.parseInt(ctx.type().array_type().expression().relation().get(0).simple().get(0).factor().get(0).summand().get(0).primary().getText()) - 1;
+        visit(ctx.type().array_type());
+        var expression = ctx.expressions();
+
+        appendln("dup");
+        appendln("astore " + idx);
+
+        while (expression != null) {
+            appendln("aload " + idx);
+            appendln("ldc " + arraySize);
+            visit(expression.expression());
+            appendln("iastore");
+            expression = expression.expressions();
+            arraySize--;
+        }
+        return null;
+    }
+
+    @Override
+    public Void visitArray_type(ImperativeCompConstParser.Array_typeContext ctx) {
+        var type = ctx.type().getText();
+        visitChildren(ctx);
+        switch (type) {
+            case "integer":
+                appendln("newarray int");
+                break;
+            case "real":
+                appendln("newarray float");
+                break;
+            case "boolean":
+                appendln("newarray boolean");
+                break;
+            default:
+                throw new IllegalArgumentException("Unsupported array type: " + type);
+        }
         return null;
     }
 }

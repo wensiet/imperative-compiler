@@ -53,11 +53,11 @@ public class GenRunner {
         ImperativeCompConstParser.InputContext parseTree = parser.input();
 
         // Semantic
-        SemanticAnalyzerVisitor semanticVisitor = new SemanticAnalyzerVisitor();
-        semanticVisitor.visit(parseTree);
+//        SemanticAnalyzerVisitor semanticVisitor = new SemanticAnalyzerVisitor();
+//        semanticVisitor.visit(parseTree);
 
-        List<String> ruleNamesList = Arrays.asList(parser.getRuleNames());
-        String originalTree = TreeUtils.toPrettyTree(parseTree, ruleNamesList);
+//        List<String> ruleNamesList = Arrays.asList(parser.getRuleNames());
+//        String originalTree = TreeUtils.toPrettyTree(parseTree, ruleNamesList);
 
         // Optimizer
         Optimizer optimizer = new Optimizer();
