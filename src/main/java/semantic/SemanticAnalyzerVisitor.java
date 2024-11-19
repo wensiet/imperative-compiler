@@ -49,12 +49,12 @@ public class SemanticAnalyzerVisitor extends ImperativeCompConstBaseVisitor<Void
         }
     }
 
-    @Override
-    public Void visitVariable_declaration(ImperativeCompConstParser.Variable_declarationContext ctx) {
-        String varName = ctx.IDENT().getText();
-        setNewObject(varName);
-        return visitChildren(ctx);
-    }
+//    @Override
+//    public Void visitVariable_declaration(ImperativeCompConstParser.Variable_declarationContext ctx) {
+//        String varName = ctx.IDENT().getText();
+//        setNewObject(varName);
+//        return visitChildren(ctx);
+//    }
 
 
     @Override
