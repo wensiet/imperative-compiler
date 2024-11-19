@@ -2,15 +2,14 @@ package compiler;
 
 import gen.ImperativeCompConstBaseVisitor;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.Map;
+import java.util.*;
 
 public class BaseCompileVisitor extends ImperativeCompConstBaseVisitor<Void> {
     Map<String, Helper> variableTable = new HashMap<>();
     Map<String, UserDefinedType> userDefinedTypes = new HashMap<>();
     Integer stackIndex = 1;
     private final StringBuilder jasminCode = new StringBuilder();
+    protected final HashMap<String, Routine> routines = new HashMap<>();
     private final ArrayList<Record> records = new ArrayList<>();
     private int labelCounter = 0;
 
