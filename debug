@@ -1,0 +1,6 @@
+var age: integer is 25;
+if age < 18 then
+    print(false);
+else
+    print(true);
+end;

@@ -1,0 +1,12 @@
+routine makeAdmin(u: User): Admin is
+   var admin: Admin is {info is u; status is true;};
+   return admin;
+end;
+
+routine makeAdmin(u: User): Admin is
+   var admin: Admin is {info is u; status is true;};
+   return admin;
+end;
+
+var u1: User is {id is 51; age is 20;};
+var adm: Admin is makeAdmin(u1);

@@ -1,0 +1,5 @@
+var s: real is 0.00;
+for i in 0..10 loop
+    s := s + 0.01;
+end;
+print(s);

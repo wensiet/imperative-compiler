@@ -1,0 +1,99 @@
+general:
+  directory: "test_cases"
+
+suites:
+  - name: "1"
+    params:
+      expectedStatusCode: 0
+      expectedOutput: "52"
+    enabled: false
+
+  - name: "2"
+    params:
+      expectedStatusCode: 0
+      expectedOutput: "52"
+    enabled: true
+
+  - name: "3"
+    params:
+      expectedStatusCode: 0
+      expectedOutput: "2"
+    enabled: false
+
+  - name: "4"
+    params:
+      expectedStatusCode: 0
+      expectedOutput: "0\n1\n2\n3\n4\n5\n6\n7\n8\n9"
+    enabled: false
+
+  - name: "5"
+    params:
+      expectedStatusCode: 0
+      expectedOutput: "1\n0"
+    enabled: true
+
+  - name: "6"
+    params:
+      expectedStatusCode: 0
+      expectedOutput: ""
+    enabled: false
+
+  - name: "7"
+    params:
+      expectedStatusCode: 0
+      expectedOutput: ""
+    enabled: false
+
+  - name: "8"
+    params:
+      expectedStatusCode: 0
+      expectedOutput: "100"
+    enabled: true
+
+  - name: "9"
+    params:
+      expectedStatusCode: 0
+      expectedOutput: "0"
+    enabled: true
+
+  - name: "10"
+    params:
+      expectedStatusCode: 0
+      expectedOutput: "0"
+    enabled: false
+
+  - name: "11"
+    params:
+      expectedStatusCode: 0
+      expectedOutput: ""
+    enabled: false
+
+  - name: "12"
+    params:
+      expectedStatusCode: 0
+      expectedOutput: ""
+    enabled: false
+
+  - name: "13"
+    params:
+      expectedStatusCode: 0
+      expectedOutput: ""
+    enabled: true
+
+  - name: "14"
+    params:
+      expectedStatusCode: 0
+      expectedOutput: "52\n20"
+    enabled: true
+
+  - name: "15"
+    params:
+      expectedStatusCode: 0
+      expectedOutput: ""
+    enabled: false
+
+  - name: "16"
+    params:
+      expectedStatusCode: 0
+      expectedOutput: "52"
+    enabled: true

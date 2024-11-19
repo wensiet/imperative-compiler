@@ -20,11 +20,6 @@ public class CompileVisitor extends DeclarationCompileVisitor {
         appendln("return");
         appendln(".end method");
 
-        System.out.println("\nVars:");
-        for (var snus : variableTable.values()) {
-            System.out.println(snus);
-        }
-
         return null;
     }
 }

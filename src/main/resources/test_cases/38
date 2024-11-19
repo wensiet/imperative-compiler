@@ -1,0 +1,2 @@
+var z: integer is (true or false) and false;
+print(z);
