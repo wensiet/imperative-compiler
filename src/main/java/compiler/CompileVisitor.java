@@ -20,6 +20,10 @@ public class CompileVisitor extends DeclarationCompileVisitor {
         appendln("return");
         appendln(".end method");
 
+        for (var routine : routines.values()) {
+            appendln(routine.body);
+        }
+
         return null;
     }
 }
