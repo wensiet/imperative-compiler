@@ -21,7 +21,8 @@ public class CompileVisitor extends DeclarationCompileVisitor {
         appendln(".end method");
 
         for (var routine : routines.values()) {
-            appendln(routine.body);
+            appendln("");
+            appendln(routine.body.toString());
         }
 
         return null;
