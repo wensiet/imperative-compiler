@@ -75,6 +75,7 @@ public class RoutineDeclarationCompileVisitor extends ImperativeCompConstBaseVis
 
         visit(ctx.body());
 
+        if (returnType.equals("V")) routine.body.append("return\n");
         routine.body.append(".end method");
 
         return null;
@@ -103,14 +104,14 @@ public class RoutineDeclarationCompileVisitor extends ImperativeCompConstBaseVis
             return null;
         }
 
-        var routine = routines.get(routineName);
-        if (routine == null) {
+        var callee = routines.get(routineName);
+        if (callee == null) {
             throw new IllegalStateException("No such routine " + routineName);
         }
-        curRoutine = routine;
+        curRoutine = callee;
         if (arguments != null) visit(arguments);
 
-        routine.body.append("invokestatic /" + routine.signature).append("\n");
+        routine.body.append("invokestatic Program/" + callee.signature).append("\n");
         return null;
     }
 
@@ -122,13 +123,13 @@ public class RoutineDeclarationCompileVisitor extends ImperativeCompConstBaseVis
 
     @Override
     public Void visitParameter_declarations(ImperativeCompConstParser.Parameter_declarationsContext ctx) {
+        if (ctx.parameter_declarations() != null) visit(ctx.parameter_declarations());
         String name = ctx.IDENT().getText();
         String type = mapType(ctx.type().getText());
         var arg = new Argument(ctx.IDENT().getText(), type);
         addLocal(name, type);
         routine.args.add(arg);
-        if (ctx.parameter_declarations() == null) return null;
-        return visit(ctx.parameter_declarations());
+        return null;
     }
 
     @Override
@@ -283,9 +284,9 @@ public class RoutineDeclarationCompileVisitor extends ImperativeCompConstBaseVis
 
         int baseVarIdx = baseVarHelper.idx;
         switch (currentType) {
-            case "integer" -> routine.body.append("iload " + baseVarIdx + " ; load integer variable").append("\n");
-            case "real" -> routine.body.append("fload " + baseVarIdx + " ; load float variable").append("\n");
-            case "boolean" -> routine.body.append("iload " + baseVarIdx + " ; load boolean variable").append("\n");
+            case "I" -> routine.body.append("iload " + baseVarIdx + " ; load integer variable").append("\n");
+            case "F" -> routine.body.append("fload " + baseVarIdx + " ; load float variable").append("\n");
+            case "Z" -> routine.body.append("iload " + baseVarIdx + " ; load boolean variable").append("\n");
             default -> routine.body.append("aload " + baseVarIdx + " ; load reference variable").append("\n");
         }
 
@@ -318,7 +319,7 @@ public class RoutineDeclarationCompileVisitor extends ImperativeCompConstBaseVis
         String varName = ctx.IDENT().getText();
         String varType = ctx.type().getText();
 
-        int idx = addLocal(varName, varType);
+        int idx = addLocal(varName, mapType(varType));
         if (ctx.expression() == null) return null;
         visit(ctx.expression());
         switch (varType) {
