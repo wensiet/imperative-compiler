@@ -216,7 +216,12 @@ public class ExpressionCompileVisitor extends BaseCompileVisitor {
         if (currentType.contains("array")) {
             if (currentType.contains("integer")) {
                 appendln("iaload" + " ; integer array load");
-
+            }
+            else if (currentType.contains("real")) {
+                appendln("faload" + " ; float array load");
+            }
+            else if (currentType.contains("bool")) {
+                appendln("baload" + " ; boolean array load");
             }
         }
         return null;
