@@ -126,7 +126,6 @@ public class JasMain {
             classFile.write(outp);
             outp.close();
             outp = null; // as marker
-            System.out.println("Generated: " + out_file.getPath());
 
         } catch (java.io.FileNotFoundException e) {
             System.err.println(iocause);
