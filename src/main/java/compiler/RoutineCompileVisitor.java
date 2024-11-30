@@ -6,6 +6,7 @@ import java.util.ArrayList;
 
 public class RoutineCompileVisitor extends LoopsCompileVisitor {
     public Routine currentRoutine = null;
+
     @Override
     public Void visitRoutine_call(ImperativeCompConstParser.Routine_callContext ctx) {
         String currentRoutineName = ctx.IDENT().getText();
@@ -16,6 +17,14 @@ public class RoutineCompileVisitor extends LoopsCompileVisitor {
             appendln("getstatic java/lang/System/out Ljava/io/PrintStream;");
 
             var printArg = arguments.expression();
+            var varTypeAssociation = "I";
+            if (variableTable.containsKey(printArg.getText())) {
+                var varType = variableTable.get(printArg.getText()).type;
+                if (varType.contains("real")) {
+                    varTypeAssociation = "F";
+                }
+            }
+
 
             if (arguments.routine_call_arguments() != null) {
                 throw new IllegalStateException();
@@ -23,8 +32,7 @@ public class RoutineCompileVisitor extends LoopsCompileVisitor {
 
             visit(printArg);
 
-            appendln("invokevirtual java/io/PrintStream/println(I)V");
-            return null;
+            appendln(String.format("invokevirtual java/io/PrintStream/println(%s)V", varTypeAssociation));
         }
         return null;
     }
