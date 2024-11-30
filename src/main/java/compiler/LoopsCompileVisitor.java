@@ -20,8 +20,8 @@ public class LoopsCompileVisitor extends IfCompileVisitor {
         visit(ctx.range().expression(1));
         appendln("istore " + endIndex);
 
-        String loopStartLabel = "loop_start_" + idx;
-        String endLoopLabel = "end_loop_" + idx;
+        String loopStartLabel = generateLabel();
+        String endLoopLabel = generateLabel();
 
         appendln(loopStartLabel + ":");
         appendln("iload " + idx);
@@ -39,24 +39,6 @@ public class LoopsCompileVisitor extends IfCompileVisitor {
         return null;
     }
 
-
-    @Override
-    public Void visitRange(ImperativeCompConstParser.RangeContext ctx) {
-        String start = ctx.getChild(1).getText();
-        String end = ctx.getChild(3).getText();
-        appendln("ldc " + start);
-        appendln("istore " + stackIndex);
-        appendln("ldc " + end);
-
-        int endIndex = stackIndex + 1;
-        appendln("istore " + endIndex);
-
-        appendln("loop_start:");
-        appendln("iload " + stackIndex);
-        appendln("iload " + endIndex);
-        appendln("if_icmpge end_loop");
-        return null;
-    }
 
     @Override
     public Void visitWhile_loop(ImperativeCompConstParser.While_loopContext ctx) {

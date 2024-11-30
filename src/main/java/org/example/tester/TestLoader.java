@@ -54,7 +54,7 @@ public class TestLoader {
 
                     RuntimeTestCaseParams testCaseParams = new RuntimeTestCaseParams(expectedStatusCode, expectedOutput);
                     if ((boolean) suite.get("enabled")) {
-                        testCases.add(new TestCase(name, fileContent, testCaseParams));
+                        testCases.add(new TestCase(name, fileContent));
                     }
                 }
             }

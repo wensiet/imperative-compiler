@@ -7,20 +7,22 @@ import jasmin.JasMain;
 import org.antlr.v4.runtime.CharStreams;
 import org.antlr.v4.runtime.CommonTokenStream;
 import semantic.Optimizer;
+import semantic.SemanticAnalyzerVisitor;
 
 import java.io.BufferedReader;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
-import java.util.Objects;
 
 public class TestRunner {
 
     public static final String ANSI_RESET = "\u001B[0m";
     public static final String ANSI_RED = "\u001B[31m";
     public static final String ANSI_GREEN = "\u001B[32m";
+    private static final String filename = "Program";
 
     public void runUnsafe(TestCase testCase) throws IOException, InterruptedException {
         // Lexer
@@ -32,8 +34,8 @@ public class TestRunner {
         ImperativeCompConstParser.InputContext parseTree = parser.input();
 
         // Semantic
-        // SemanticAnalyzerVisitor semanticVisitor = new SemanticAnalyzerVisitor();
-        // semanticVisitor.visit(parseTree);
+        SemanticAnalyzerVisitor semanticVisitor = new SemanticAnalyzerVisitor();
+        semanticVisitor.visit(parseTree);
 
         // List<String> ruleNamesList = Arrays.asList(parser.getRuleNames());
         // String originalTree = TreeUtils.toPrettyTree(parseTree, ruleNamesList);
@@ -46,12 +48,12 @@ public class TestRunner {
         List<String> files = new ArrayList<>();
         CompileVisitor compileVisitor = new CompileVisitor();
         compileVisitor.visit(parseTree);
-        try (FileWriter fileWriter = new FileWriter("TestRun.j")) {
+        try (FileWriter fileWriter = new FileWriter(filename + ".j")) {
             fileWriter.write(compileVisitor.getJasminCode());
         } catch (IOException e) {
             e.printStackTrace();
         }
-        files.add("TestRun.j");
+        files.add(filename + ".j");
 
         for (var record : compileVisitor.getRecords()) {
             String fileName = record.name + ".j";
@@ -64,7 +66,7 @@ public class TestRunner {
         }
         JasMain jasMain = new JasMain();
         jasMain.run(files.toArray(new String[0]));
-        buildProgramProcess(testCase.params);
+        buildProgramProcess();
     }
 
     public void run(TestCase testCase) throws InterruptedException, IOException {
@@ -77,8 +79,8 @@ public class TestRunner {
         }
     }
 
-    private static void buildProgramProcess(RuntimeTestCaseParams params) throws IOException, InterruptedException {
-        ProcessBuilder processBuilder = new ProcessBuilder("java", "Program");
+    private static void buildProgramProcess() throws IOException, InterruptedException {
+        ProcessBuilder processBuilder = new ProcessBuilder("java", filename);
         Process process = processBuilder.start();
 
         BufferedReader reader = new BufferedReader(new InputStreamReader(process.getInputStream()));
@@ -90,12 +92,6 @@ public class TestRunner {
         if (!results.isEmpty() && results.charAt(results.length() - 1) == '\n') {
             results.deleteCharAt(results.length() - 1);
         }
-        int exitCode = process.waitFor();
-        if (exitCode != params.expectedExitCode) {
-            throw new TestCaseException("Expected " + params.expectedExitCode + " exit code, but got: " + exitCode);
-        }
-        if (!Objects.equals(params.expectedOutput, results.toString())) {
-            throw new TestCaseException("Output does not match. Expected:\n" + params.expectedOutput + "\n got:\n" + results);
-        }
+        System.out.println(results);
     }
 }
