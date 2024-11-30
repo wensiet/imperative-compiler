@@ -162,7 +162,6 @@ public class ExpressionCompileVisitor extends BaseCompileVisitor {
         // Start by flattening the access chain into a list
         List<String> accessChain = new ArrayList<>();
         ImperativeCompConstParser.Modifiable_primaryContext currentCtx = ctx;
-
         while (currentCtx != null) {
             if (currentCtx.IDENT() != null) {
                 // Add the identifier (field or variable) to the access chain
@@ -211,6 +210,20 @@ public class ExpressionCompileVisitor extends BaseCompileVisitor {
             currentType = fieldType;
         }
 
+        if (ctx.expression() != null) {
+            visitExpression(ctx.expression());
+        }
+        if (currentType.contains("array")) {
+            if (currentType.contains("integer")) {
+                appendln("iaload" + " ; integer array load");
+            }
+            else if (currentType.contains("real")) {
+                appendln("faload" + " ; float array load");
+            }
+            else if (currentType.contains("bool")) {
+                appendln("baload" + " ; boolean array load");
+            }
+        }
         return null;
     }
 }

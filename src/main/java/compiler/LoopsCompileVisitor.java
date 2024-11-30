@@ -6,6 +6,7 @@ public class LoopsCompileVisitor extends IfCompileVisitor {
     @Override
     public Void visitFor_loop(ImperativeCompConstParser.For_loopContext ctx) {
         var varName = ctx.IDENT().getText();
+        variableTable.put(varName, new Helper(stackIndex, "integer"));
         var variableHelper = variableTable.get(varName);
         if (variableHelper == null) {
             throw new RuntimeException("Variable not declared: " + varName);
