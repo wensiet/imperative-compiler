@@ -76,34 +76,26 @@ public class ExpressionCompileVisitor extends BaseCompileVisitor {
 
     @Override
     public Void visitSimple(ImperativeCompConstParser.SimpleContext ctx) {
+        // First check if it's just a single factor (no operator)
         if (ctx.factor(0) != null && ctx.factor(1) == null) {
-            // Visit single factor
+            // Visit the first (and only) factor
             visit(ctx.factor(0));
-        } else if (ctx.factor(0) != null && ctx.factor(1) != null) {
-            // Visit left and right factors
+        }
+        // If it's a multiplication, division, or modulo
+        else if (ctx.factor(0) != null && ctx.factor(1) != null) {
+            // Visit the left-hand side (first factor)
             visit(ctx.factor(0));
+
+            // Visit the right-hand side (second factor)
             visit(ctx.factor(1));
 
-            // Determine the types of the operands (assuming they're the same for simplicity)
-            String leftType = getExpressionType(ctx.factor(0));
-            String rightType = getExpressionType(ctx.factor(1));
-
-            if (!leftType.equals(rightType)) {
-                throw new IllegalStateException("Type mismatch: " + leftType + " and " + rightType);
-            }
-
-            switch (leftType) {
-                case "integer" -> {
-                    if (ctx.TIMES() != null) appendln("imul");
-                    else if (ctx.SLASH() != null) appendln("idiv");
-                    else if (ctx.PERCENT() != null) appendln("irem");
-                }
-                case "real" -> {
-                    if (ctx.TIMES() != null) appendln("fmul");
-                    else if (ctx.SLASH() != null) appendln("fdiv");
-                    else throw new IllegalStateException("Modulo not supported for real numbers");
-                }
-                default -> throw new IllegalStateException("Unsupported type for operation: " + leftType);
+            // Handle the operator based on the token (TIMES, SLASH, PERCENT)
+            if (ctx.TIMES() != null) {
+                appendln("imul");  // multiplication
+            } else if (ctx.SLASH() != null) {
+                appendln("idiv");  // division
+            } else if (ctx.PERCENT() != null) {
+                appendln("irem");  // modulo
             }
         }
         return null;
@@ -227,6 +219,18 @@ public class ExpressionCompileVisitor extends BaseCompileVisitor {
             currentType = fieldType;
         }
 
+        if (ctx.expression() != null) {
+            visitExpression(ctx.expression());
+        }
+        if (currentType.contains("array")) {
+            if (currentType.contains("integer")) {
+                appendln("iaload" + " ; integer array load");
+            } else if (currentType.contains("real")) {
+                appendln("faload" + " ; float array load");
+            } else if (currentType.contains("bool")) {
+                appendln("baload" + " ; boolean array load");
+            }
+        }
         return null;
     }
 }

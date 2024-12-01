@@ -81,7 +81,13 @@ public class TypeCompileVisitor extends BodyCompileVisitor {
             appendln("aload " + idx);
             appendln("ldc " + arraySize);
             visit(expression.expression());
-            appendln("iastore");
+            if (varType.contains("integer")) {
+                appendln("iastore");
+            } else if (varType.contains("real")) {
+                appendln("fastore");
+            } else if (varType.contains("boolean")) {
+                appendln("bastore");
+            }
             expression = expression.expressions();
             arraySize--;
         }
