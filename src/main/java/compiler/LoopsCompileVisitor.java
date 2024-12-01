@@ -12,13 +12,23 @@ public class LoopsCompileVisitor extends IfCompileVisitor {
             throw new RuntimeException("Variable not declared: " + varName);
         }
         int idx = variableHelper.idx;
-
-        visit(ctx.range().expression(0));
-        appendln("istore " + idx);
-
         int endIndex = idx + 1;
-        visit(ctx.range().expression(1));
-        appendln("istore " + endIndex);
+
+        boolean isReverse = ctx.range().REVERSESYM() != null;
+
+        if (isReverse) {
+            visit(ctx.range().expression(1));
+            appendln("istore " + idx);
+
+            visit(ctx.range().expression(0));
+            appendln("istore " + endIndex);
+        } else {
+            visit(ctx.range().expression(0));
+            appendln("istore " + idx);
+
+            visit(ctx.range().expression(1));
+            appendln("istore " + endIndex);
+        }
 
         String loopStartLabel = generateLabel();
         String endLoopLabel = generateLabel();
@@ -26,11 +36,12 @@ public class LoopsCompileVisitor extends IfCompileVisitor {
         appendln(loopStartLabel + ":");
         appendln("iload " + idx);
         appendln("iload " + endIndex);
-        appendln("if_icmpge " + endLoopLabel);
+
+        appendln(isReverse ? "if_icmplt " + endLoopLabel : "if_icmpgt " + endLoopLabel);
 
         visit(ctx.body());
 
-        appendln("iinc " + idx + " 1");
+        appendln(isReverse ? "iinc " + idx + " -1" : "iinc " + idx + " 1");
 
         appendln("goto " + loopStartLabel);
 
