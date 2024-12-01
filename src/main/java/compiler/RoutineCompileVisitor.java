@@ -17,9 +17,10 @@ public class RoutineCompileVisitor extends LoopsCompileVisitor {
             appendln("getstatic java/lang/System/out Ljava/io/PrintStream;");
 
             var printArg = arguments.expression();
+            var printArgText = printArg.getText().replaceAll("\\[\\d+\\]", "");
             var varTypeAssociation = "I";
-            if (variableTable.containsKey(printArg.getText())) {
-                var varType = variableTable.get(printArg.getText()).type;
+            if (variableTable.containsKey(printArgText)) {
+                var varType = variableTable.get(printArgText).type;
                 if (varType.contains("real")) {
                     varTypeAssociation = "F";
                 }
