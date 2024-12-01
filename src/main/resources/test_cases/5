@@ -6,4 +6,9 @@ else
     status := true;
 end;
 print(status);
-
+if age < 18 then
+    status := true;
+else
+    status := false;
+end;
+print(status);

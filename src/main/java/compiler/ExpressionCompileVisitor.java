@@ -103,33 +103,32 @@ public class ExpressionCompileVisitor extends BaseCompileVisitor {
 
     @Override
     public Void visitFactor(ImperativeCompConstParser.FactorContext ctx) {
-        // First check if it's just a single summand (no operator)
         if (ctx.summand(0) != null && ctx.summand(1) == null) {
-            // Visit the first (and only) summand
+            // Visit single summand
             visit(ctx.summand(0));
-        }
-        // If it's an addition or subtraction operation
-        else if (ctx.summand(0) != null && ctx.summand(1) != null) {
-            // Visit the left-hand side (first summand)
+        } else if (ctx.summand(0) != null && ctx.summand(1) != null) {
+            // Visit left and right summands
             visit(ctx.summand(0));
-
-            // Visit the right-hand side (second summand)
             visit(ctx.summand(1));
 
-            // Handle the operator based on the token (PLUS or MINUS)
-            var varType = variableTable.get(ctx.summand().get(0).primary().modifiable_primary().IDENT().getText()).type;
-            if (ctx.PLUS() != null) {
-                if (varType.equals("integer")) {
-                    appendln("iadd");
-                } else if (varType.equals("real")) {
-                    appendln("fadd");
+            // Determine the types of the operands
+            String leftType = getExpressionType(ctx.summand(0));
+            String rightType = getExpressionType(ctx.summand(1));
+
+            if (!leftType.equals(rightType)) {
+                throw new IllegalStateException("Type mismatch: " + leftType + " and " + rightType);
+            }
+
+            switch (leftType) {
+                case "integer" -> {
+                    if (ctx.PLUS() != null) appendln("iadd");
+                    else if (ctx.MINUS() != null) appendln("isub");
                 }
-            } else if (ctx.MINUS() != null) {
-                if (varType.equals("integer")) {
-                    appendln("isub");
-                } else if (varType.equals("real")) {
-                    appendln("fsub");
+                case "real" -> {
+                    if (ctx.PLUS() != null) appendln("fadd");
+                    else if (ctx.MINUS() != null) appendln("fsub");
                 }
+                default -> throw new IllegalStateException("Unsupported type for operation: " + leftType);
             }
         }
         return null;
@@ -171,6 +170,7 @@ public class ExpressionCompileVisitor extends BaseCompileVisitor {
         // Start by flattening the access chain into a list
         List<String> accessChain = new ArrayList<>();
         ImperativeCompConstParser.Modifiable_primaryContext currentCtx = ctx;
+
         while (currentCtx != null) {
             if (currentCtx.IDENT() != null) {
                 // Add the identifier (field or variable) to the access chain

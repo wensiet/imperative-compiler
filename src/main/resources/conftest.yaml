@@ -5,8 +5,8 @@ suites:
   - name: "1"
     params:
       expectedStatusCode: 0
-      expectedOutput: "52"
-    enabled: false
+      expectedOutput: "999999"
+    enabled: true
 
   - name: "2"
     params:
@@ -17,14 +17,14 @@ suites:
   - name: "3"
     params:
       expectedStatusCode: 0
-      expectedOutput: "2"
-    enabled: false
+      expectedOutput: ""
+    enabled: true
 
   - name: "4"
     params:
       expectedStatusCode: 0
       expectedOutput: "0\n1\n2\n3\n4\n5\n6\n7\n8\n9"
-    enabled: false
+    enabled: true
 
   - name: "5"
     params:
@@ -35,14 +35,14 @@ suites:
   - name: "6"
     params:
       expectedStatusCode: 0
-      expectedOutput: ""
-    enabled: false
+      expectedOutput: "0.09999999"
+    enabled: true
 
   - name: "7"
     params:
       expectedStatusCode: 0
-      expectedOutput: ""
-    enabled: false
+      expectedOutput: "0"
+    enabled: true
 
   - name: "8"
     params:
@@ -65,14 +65,14 @@ suites:
   - name: "11"
     params:
       expectedStatusCode: 0
-      expectedOutput: ""
-    enabled: false
+      expectedOutput: "1"
+    enabled: true
 
   - name: "12"
     params:
       expectedStatusCode: 0
-      expectedOutput: ""
-    enabled: false
+      expectedOutput: "1"
+    enabled: true
 
   - name: "13"
     params:

@@ -1,12 +1,19 @@
 package compiler;
 
 import java.util.ArrayList;
+import java.util.List;
 
 public class Routine {
-    public String body;
-    public String name;
-    public ArrayList<RoutineArg> args;
-    public String returnType;
+    String name;
+    String returnType;
+    StringBuilder body;
+    String signature;
+    List<Argument> args;
+
+    public Routine(String name, String returnType) {
+        this.name = name;
+        this.returnType = returnType;
+        this.body = new StringBuilder();
+        this.args = new ArrayList<>();
+    }
 }
-
-
