@@ -76,26 +76,34 @@ public class ExpressionCompileVisitor extends BaseCompileVisitor {
 
     @Override
     public Void visitSimple(ImperativeCompConstParser.SimpleContext ctx) {
-        // First check if it's just a single factor (no operator)
         if (ctx.factor(0) != null && ctx.factor(1) == null) {
-            // Visit the first (and only) factor
+            // Visit single factor
             visit(ctx.factor(0));
-        }
-        // If it's a multiplication, division, or modulo
-        else if (ctx.factor(0) != null && ctx.factor(1) != null) {
-            // Visit the left-hand side (first factor)
+        } else if (ctx.factor(0) != null && ctx.factor(1) != null) {
+            // Visit left and right factors
             visit(ctx.factor(0));
-
-            // Visit the right-hand side (second factor)
             visit(ctx.factor(1));
 
-            // Handle the operator based on the token (TIMES, SLASH, PERCENT)
-            if (ctx.TIMES() != null) {
-                appendln("imul");  // multiplication
-            } else if (ctx.SLASH() != null) {
-                appendln("idiv");  // division
-            } else if (ctx.PERCENT() != null) {
-                appendln("irem");  // modulo
+            // Determine the types of the operands (assuming they're the same for simplicity)
+            String leftType = getExpressionType(ctx.factor(0));
+            String rightType = getExpressionType(ctx.factor(1));
+
+            if (!leftType.equals(rightType)) {
+                throw new IllegalStateException("Type mismatch: " + leftType + " and " + rightType);
+            }
+
+            switch (leftType) {
+                case "integer" -> {
+                    if (ctx.TIMES() != null) appendln("imul");
+                    else if (ctx.SLASH() != null) appendln("idiv");
+                    else if (ctx.PERCENT() != null) appendln("irem");
+                }
+                case "real" -> {
+                    if (ctx.TIMES() != null) appendln("fmul");
+                    else if (ctx.SLASH() != null) appendln("fdiv");
+                    else throw new IllegalStateException("Modulo not supported for real numbers");
+                }
+                default -> throw new IllegalStateException("Unsupported type for operation: " + leftType);
             }
         }
         return null;
@@ -103,24 +111,32 @@ public class ExpressionCompileVisitor extends BaseCompileVisitor {
 
     @Override
     public Void visitFactor(ImperativeCompConstParser.FactorContext ctx) {
-        // First check if it's just a single summand (no operator)
         if (ctx.summand(0) != null && ctx.summand(1) == null) {
-            // Visit the first (and only) summand
+            // Visit single summand
             visit(ctx.summand(0));
-        }
-        // If it's an addition or subtraction operation
-        else if (ctx.summand(0) != null && ctx.summand(1) != null) {
-            // Visit the left-hand side (first summand)
+        } else if (ctx.summand(0) != null && ctx.summand(1) != null) {
+            // Visit left and right summands
             visit(ctx.summand(0));
-
-            // Visit the right-hand side (second summand)
             visit(ctx.summand(1));
 
-            // Handle the operator based on the token (PLUS or MINUS)
-            if (ctx.PLUS() != null) {
-                appendln("iadd");  // addition
-            } else if (ctx.MINUS() != null) {
-                appendln("isub");  // subtraction
+            // Determine the types of the operands
+            String leftType = getExpressionType(ctx.summand(0));
+            String rightType = getExpressionType(ctx.summand(1));
+
+            if (!leftType.equals(rightType)) {
+                throw new IllegalStateException("Type mismatch: " + leftType + " and " + rightType);
+            }
+
+            switch (leftType) {
+                case "integer" -> {
+                    if (ctx.PLUS() != null) appendln("iadd");
+                    else if (ctx.MINUS() != null) appendln("isub");
+                }
+                case "real" -> {
+                    if (ctx.PLUS() != null) appendln("fadd");
+                    else if (ctx.MINUS() != null) appendln("fsub");
+                }
+                default -> throw new IllegalStateException("Unsupported type for operation: " + leftType);
             }
         }
         return null;
