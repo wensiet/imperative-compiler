@@ -13,7 +13,7 @@ public class BaseCompileVisitor extends ImperativeCompConstBaseVisitor<Void> {
     private final StringBuilder jasminCode = new StringBuilder();
     protected final HashMap<String, Routine> routines = new HashMap<>();
     private final ArrayList<Record> records = new ArrayList<>();
-    private int labelCounter = 0;
+    protected int labelCounter = 0;
 
     public String getJasminCode() {
         return jasminCode.toString();

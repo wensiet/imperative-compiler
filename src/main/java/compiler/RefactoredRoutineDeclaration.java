@@ -11,8 +11,9 @@ public class RefactoredRoutineDeclaration extends CompileVisitor {
     List<Argument> args = new ArrayList<>();
     Routine resultingRoutine;
 
-    public RefactoredRoutineDeclaration(Map<String, UserDefinedType> userDefinedTypes) {
+    public RefactoredRoutineDeclaration(Map<String, UserDefinedType> userDefinedTypes, int labelCounter) {
         this.userDefinedTypes = userDefinedTypes;
+        this.labelCounter += labelCounter;
     }
 
     @Override
@@ -51,7 +52,7 @@ public class RefactoredRoutineDeclaration extends CompileVisitor {
 
         visit(ctx.body());
 
-        if (returnType.equals("V")) appendln("return");
+        appendln("return");
         appendln(".end method");
 
         resultingRoutine.body = new StringBuilder(getJasminCode());

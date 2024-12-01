@@ -9,20 +9,16 @@ public class ExpressionCompileVisitor extends BaseCompileVisitor {
     @Override
     public Void visitExpression(ImperativeCompConstParser.ExpressionContext ctx) {
         if (ctx.relation() != null && ctx.relation().size() == 1) {
-            // Handle a simple relation (comparison or value)
             visit(ctx.relation(0));
         } else if (ctx.relation(0) != null && ctx.AND() != null) {
-            // Handle logical AND
             visit(ctx.relation(0));
             visit(ctx.relation(1));
             appendln("iand");
         } else if (ctx.relation(0) != null && ctx.OR() != null) {
-            // Handle logical OR
             visit(ctx.relation(0));
             visit(ctx.relation(1));
             appendln("ior");
         } else if (ctx.relation(0) != null && ctx.XOR() != null) {
-            // Handle logical XOR
             visit(ctx.relation(0));
             visit(ctx.relation(1));
             appendln("ixor");
@@ -34,18 +30,13 @@ public class ExpressionCompileVisitor extends BaseCompileVisitor {
 
     @Override
     public Void visitRelation(ImperativeCompConstParser.RelationContext ctx) {
-        // First check if the relation is just a simple expression
         if (ctx.simple(0) != null && ctx.simple(1) == null) {
-            // Visit the simple expression
             visit(ctx.simple(0));
         } else if (ctx.simple(0) != null && ctx.simple(1) != null) {
-            // Visit the left-hand side (simple)
             visit(ctx.simple(0));
 
-            // Visit the right-hand side (simple)
             visit(ctx.simple(1));
 
-            // Check which comparison operator we're dealing with and emit the corresponding Jasmin code
             String labelTrue = generateLabel();
             if (ctx.LSS() != null) {
                 appendln("if_icmplt " + labelTrue); // less than (LSS)
@@ -63,11 +54,11 @@ public class ExpressionCompileVisitor extends BaseCompileVisitor {
 
             String labelEnd = generateLabel();
 
-            appendln("iconst_0"); // Push 0 (false) to stack if not true
+            appendln("iconst_0");
             appendln("goto " + labelEnd);
 
             appendln(labelTrue + ":");
-            appendln("iconst_1"); // Push 1 (true) to stack
+            appendln("iconst_1");
 
             appendln(labelEnd + ":");
         }
@@ -76,26 +67,31 @@ public class ExpressionCompileVisitor extends BaseCompileVisitor {
 
     @Override
     public Void visitSimple(ImperativeCompConstParser.SimpleContext ctx) {
-        // First check if it's just a single factor (no operator)
         if (ctx.factor(0) != null && ctx.factor(1) == null) {
-            // Visit the first (and only) factor
             visit(ctx.factor(0));
-        }
-        // If it's a multiplication, division, or modulo
-        else if (ctx.factor(0) != null && ctx.factor(1) != null) {
-            // Visit the left-hand side (first factor)
+        } else if (ctx.factor(0) != null && ctx.factor(1) != null) {
             visit(ctx.factor(0));
-
-            // Visit the right-hand side (second factor)
             visit(ctx.factor(1));
 
-            // Handle the operator based on the token (TIMES, SLASH, PERCENT)
-            if (ctx.TIMES() != null) {
-                appendln("imul");  // multiplication
-            } else if (ctx.SLASH() != null) {
-                appendln("idiv");  // division
-            } else if (ctx.PERCENT() != null) {
-                appendln("irem");  // modulo
+            String leftType = getExpressionType(ctx.factor(0));
+            String rightType = getExpressionType(ctx.factor(1));
+
+            if (!leftType.equals(rightType)) {
+                throw new IllegalStateException("Type mismatch: " + leftType + " and " + rightType);
+            }
+
+            switch (leftType) {
+                case "integer" -> {
+                    if (ctx.TIMES() != null) appendln("imul");
+                    else if (ctx.SLASH() != null) appendln("idiv");
+                    else if (ctx.PERCENT() != null) appendln("irem");
+                }
+                case "real" -> {
+                    if (ctx.TIMES() != null) appendln("fmul");
+                    else if (ctx.SLASH() != null) appendln("fdiv");
+                    else throw new IllegalStateException("Modulo not supported for real numbers");
+                }
+                default -> throw new IllegalStateException("Unsupported type for operation: " + leftType);
             }
         }
         return null;
@@ -104,14 +100,11 @@ public class ExpressionCompileVisitor extends BaseCompileVisitor {
     @Override
     public Void visitFactor(ImperativeCompConstParser.FactorContext ctx) {
         if (ctx.summand(0) != null && ctx.summand(1) == null) {
-            // Visit single summand
             visit(ctx.summand(0));
         } else if (ctx.summand(0) != null && ctx.summand(1) != null) {
-            // Visit left and right summands
             visit(ctx.summand(0));
             visit(ctx.summand(1));
 
-            // Determine the types of the operands
             String leftType = getExpressionType(ctx.summand(0));
             String rightType = getExpressionType(ctx.summand(1));
 
@@ -136,12 +129,9 @@ public class ExpressionCompileVisitor extends BaseCompileVisitor {
 
     @Override
     public Void visitSummand(ImperativeCompConstParser.SummandContext ctx) {
-        // If the summand is a primary
         if (ctx.primary() != null) {
             visit(ctx.primary());
-        }
-        // If the summand is an expression inside parentheses
-        else if (ctx.LPAREN() != null && ctx.RPAREN() != null) {
+        } else if (ctx.LPAREN() != null && ctx.RPAREN() != null) {
             visit(ctx.expression());
         }
         return null;
@@ -167,20 +157,16 @@ public class ExpressionCompileVisitor extends BaseCompileVisitor {
 
     @Override
     public Void visitModifiable_primary(ImperativeCompConstParser.Modifiable_primaryContext ctx) {
-        // Start by flattening the access chain into a list
         List<String> accessChain = new ArrayList<>();
         ImperativeCompConstParser.Modifiable_primaryContext currentCtx = ctx;
 
         while (currentCtx != null) {
             if (currentCtx.IDENT() != null) {
-                // Add the identifier (field or variable) to the access chain
                 accessChain.addFirst(currentCtx.IDENT().getText());
             }
-            // Traverse up the parse tree to process the next part of the chain
             currentCtx = currentCtx.modifiable_primary();
         }
 
-        // Resolve the base variable
         String baseVarName = accessChain.removeFirst();
         Helper baseVarHelper = variableTable.get(baseVarName);
         if (baseVarHelper == null) {
@@ -189,7 +175,6 @@ public class ExpressionCompileVisitor extends BaseCompileVisitor {
 
         String currentType = baseVarHelper.type;
 
-        // Load the base variable onto the stack
         int baseVarIdx = baseVarHelper.idx;
         switch (currentType) {
             case "integer" -> appendln("iload " + baseVarIdx + " ; load integer variable");
@@ -198,24 +183,19 @@ public class ExpressionCompileVisitor extends BaseCompileVisitor {
             default -> appendln("aload " + baseVarIdx + " ; load reference variable");
         }
 
-        // Iteratively resolve each field in the chain
         for (String fieldName : accessChain) {
-            // Ensure the current type is a record
             UserDefinedType recordType = userDefinedTypes.get(currentType);
             if (recordType == null) {
                 throw new IllegalStateException("Type '" + currentType + "' is not a user-defined record");
             }
 
-            // Get the field type
             String fieldType = recordType.fields.get(fieldName);
             if (fieldType == null) {
                 throw new IllegalStateException("Field '" + fieldName + "' is not defined in record type '" + currentType + "'");
             }
 
-            // Emit code to access the field
             appendln("getfield " + currentType + "/" + fieldName + " " + mapType(fieldType));
 
-            // Update the current type to the field type
             currentType = fieldType;
         }
 
