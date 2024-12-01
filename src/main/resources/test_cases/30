@@ -1,0 +1,5 @@
+type User is record {
+	var id: integer;
+	var age: integer;
+	var id: float;
+} end;

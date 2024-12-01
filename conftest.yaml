@@ -1,0 +1,45 @@
+general:
+  directory: "test_cases"
+
+suites:
+  - name: "1"
+    params:
+      expectedStatusCode: 0
+      expectedOutput: ""
+    enabled: true
+
+  - name: "1"
+    params:
+      expectedStatusCode: 0
+      expectedOutput: ""
+    enabled: true
+
+  - name: "1"
+    params:
+      expectedStatusCode: 0
+      expectedOutput: ""
+    enabled: true
+
+  - name: "1"
+    params:
+      expectedStatusCode: 0
+      expectedOutput: ""
+    enabled: true
+
+  - name: "1"
+    params:
+      expectedStatusCode: 0
+      expectedOutput: ""
+    enabled: true
+
+  - name: "1"
+    params:
+      expectedStatusCode: 0
+      expectedOutput: ""
+    enabled: true
+
+  - name: "1"
+    params:
+      expectedStatusCode: 0
+      expectedOutput: ""
+    enabled: true

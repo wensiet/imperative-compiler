@@ -1,16 +1,17 @@
 package semantic;
 
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
 
 import gen.ImperativeCompConstBaseVisitor;
 import gen.ImperativeCompConstParser;
+import org.antlr.v4.runtime.tree.ParseTree;
+
+import static java.lang.System.exit;
 
 public class SemanticAnalyzerVisitor extends ImperativeCompConstBaseVisitor<Void> {
 
     private final Map<String, String> symbolTable = new HashMap<>();
+    private final ArrayList<Record> records = new ArrayList<>();
     private boolean inRoutine = false;
 
     private void setNewObject(String varName) {
@@ -19,6 +20,18 @@ public class SemanticAnalyzerVisitor extends ImperativeCompConstBaseVisitor<Void
         } else {
             symbolTable.put(varName, "1");
         }
+    }
+
+    @Override
+    public Void visit(ParseTree tree) {
+        try {
+            return super.visit(tree);
+
+        } catch (Exception e) {
+            System.out.println(e.getMessage());
+            exit(1);
+        }
+        return null;
     }
 
     @Override
@@ -49,6 +62,19 @@ public class SemanticAnalyzerVisitor extends ImperativeCompConstBaseVisitor<Void
         }
     }
 
+    private boolean checkExistence(String varName) {
+        var recordPresent = false;
+        for (Record record : records) {
+            for (String var : record.fields) {
+                if (var.equals(varName)) {
+                    recordPresent = true;
+                    break;
+                }
+            }
+        }
+        return symbolTable.containsKey(varName) | recordPresent;
+    }
+
     @Override
     public Void visitVariable_declaration(ImperativeCompConstParser.Variable_declarationContext ctx) {
         String varName = ctx.IDENT().getText();
@@ -59,9 +85,16 @@ public class SemanticAnalyzerVisitor extends ImperativeCompConstBaseVisitor<Void
 
     @Override
     public Void visitModifiable_primary(ImperativeCompConstParser.Modifiable_primaryContext ctx) {
-        String varName = ctx.IDENT().getText();
-        if (!symbolTable.containsKey(varName)) {
-            throw new RuntimeException("Error: Variable '" + varName + "' is used before being declared.");
+        if (ctx.IDENT() != null) {
+            String varName = ctx.IDENT().getText();
+            if (!checkExistence(varName)) {
+                throw new RuntimeException("Error: Variable '" + varName + "' is used before being declared.");
+            }
+        } else {
+            String varName = ctx.modifiable_primary().IDENT().getText();
+            if (!checkExistence(varName)) {
+                throw new RuntimeException("Error: Variable '" + varName + "' is used before being declared.");
+            }
         }
         return visitChildren(ctx);
     }
@@ -81,7 +114,7 @@ public class SemanticAnalyzerVisitor extends ImperativeCompConstBaseVisitor<Void
         if ("print".equals(routineName)) {
             return visitChildren(ctx);
         }
-        if (!symbolTable.containsKey(routineName)) {
+        if (!checkExistence(routineName)) {
             throw new RuntimeException("Error: Routine '" + routineName + "' is called before being declared.");
         }
         return visitChildren(ctx);
@@ -99,7 +132,6 @@ public class SemanticAnalyzerVisitor extends ImperativeCompConstBaseVisitor<Void
     public Void visitRecord_variable_declaration(ImperativeCompConstParser.Record_variable_declarationContext ctx) {
         String recordName = ctx.IDENT().getText();
         setNewObject(recordName);
-        Map<String, String> fieldTable = new HashMap<>();
 
         return visitChildren(ctx);
     }
@@ -117,27 +149,30 @@ public class SemanticAnalyzerVisitor extends ImperativeCompConstBaseVisitor<Void
         return visitChildren(ctx);
     }
 
-    @Override
-    public Void visitRecord_variable_declarations(ImperativeCompConstParser.Record_variable_declarationsContext ctx) {
-        Set<String> fieldNames = new HashSet<>();
-
-        ImperativeCompConstParser.Record_variable_declarationsContext fieldCtx = ctx;
-        while (fieldCtx != null) {
-            String fieldName = fieldCtx.IDENT().getText();
-
-            if (!fieldNames.add(fieldName)) {
-                throw new RuntimeException("Error: Field '" + fieldName + "' is already declared in the record.");
-            }
-
-            fieldCtx = fieldCtx.record_variable_declarations();
-        }
-
-        return visitChildren(ctx);
-    }
-
 
     @Override
     public Void visitType_declaration(ImperativeCompConstParser.Type_declarationContext ctx) {
+        if (ctx.type().record_type() != null) {
+            var recordName = ctx.IDENT().getText();
+            Set<String> fieldNames = new HashSet<>();
+            var variableDeclarationsContext = ctx.type().record_type().record_variable_declarations();
+            while (variableDeclarationsContext != null) {
+                String fieldName = variableDeclarationsContext.IDENT().getText();
+                if (!fieldNames.add(fieldName)) {
+                    throw new RuntimeException("Error: Field '" + fieldName + "' is already declared in the record.");
+                }
+                variableDeclarationsContext = variableDeclarationsContext.record_variable_declarations();
+            }
+            records.add(new Record(recordName, fieldNames));
+        } else {
+            String varName = ctx.IDENT().getText();
+            setNewObject(varName);
+        }
+        return visitChildren(ctx);
+    }
+
+    @Override
+    public Void visitArray_variable_declaration(ImperativeCompConstParser.Array_variable_declarationContext ctx) {
         String varName = ctx.IDENT().getText();
         setNewObject(varName);
         return visitChildren(ctx);
