@@ -23,6 +23,10 @@ public class BaseCompileVisitor extends ImperativeCompConstBaseVisitor<Void> {
         jasminCode.append(line).append("\n");
     }
 
+    protected void append(String text) {
+        jasminCode.append(text);
+    }
+
     protected String generateLabel() {
         return "LABEL_" + (labelCounter++);
     }

@@ -2,17 +2,13 @@ package compiler;
 
 import gen.ImperativeCompConstParser;
 
-import java.util.ArrayList;
-import java.util.List;
 
 public class RoutineCompileVisitor extends LoopsCompileVisitor {
-    Routine curRoutine;
     @Override
     public Void visitRoutine_declaration(ImperativeCompConstParser.Routine_declarationContext ctx) {
-        RoutineDeclarationCompileVisitor routineVisitor = new RoutineDeclarationCompileVisitor();
-        routineVisitor.routines = routines;
+        RefactoredRoutineDeclaration routineVisitor = new RefactoredRoutineDeclaration(userDefinedTypes);
         routineVisitor.visit(ctx);
-        routines.put(routineVisitor.routine.name, routineVisitor.routine);
+        routines.put(ctx.IDENT().getText(), routineVisitor.resultingRoutine);
         return null;
     }
 
@@ -27,6 +23,15 @@ public class RoutineCompileVisitor extends LoopsCompileVisitor {
             appendln("getstatic java/lang/System/out Ljava/io/PrintStream;");
 
             var printArg = arguments.expression();
+            var printArgText = printArg.getText().replaceAll("\\[\\d+\\]", "");
+            var varTypeAssociation = "I";
+            if (variableTable.containsKey(printArgText)) {
+                var varType = variableTable.get(printArgText).type;
+                if (varType.contains("real")) {
+                    varTypeAssociation = "F";
+                }
+            }
+
 
             if (arguments.routine_call_arguments() != null) {
                 throw new IllegalStateException("Print accepts exactly one argument");
@@ -34,7 +39,7 @@ public class RoutineCompileVisitor extends LoopsCompileVisitor {
 
             visit(printArg);
 
-            appendln("invokevirtual java/io/PrintStream/println(I)V");
+            appendln(String.format("invokevirtual java/io/PrintStream/println(%s)V", varTypeAssociation));
             return null;
         }
 
@@ -42,7 +47,6 @@ public class RoutineCompileVisitor extends LoopsCompileVisitor {
         if (routine == null) {
             throw new IllegalStateException("No such routine " + routineName);
         }
-        curRoutine = routine;
         if (arguments != null) visit(arguments);
 
         appendln("invokestatic Program/" + routine.signature);

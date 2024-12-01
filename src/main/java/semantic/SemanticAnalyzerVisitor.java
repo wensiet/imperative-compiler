@@ -111,7 +111,7 @@ public class SemanticAnalyzerVisitor extends ImperativeCompConstBaseVisitor<Void
     @Override
     public Void visitRoutine_call(ImperativeCompConstParser.Routine_callContext ctx) {
         String routineName = ctx.IDENT().getText();
-        if ("print".equals(routineName)) {
+        if (routineName.equals("print")) {
             return visitChildren(ctx);
         }
         if (!checkExistence(routineName)) {

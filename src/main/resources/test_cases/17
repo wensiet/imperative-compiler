@@ -1,3 +1,13 @@
+type User is record {
+	var id: integer;
+	var age: integer;
+} end;
+
+type Admin is record {
+	var info: User;
+	var status: boolean;
+} end;
+
 routine makeAdmin(u: User): Admin is
    var admin: Admin is {info is u; status is true;};
    return admin;

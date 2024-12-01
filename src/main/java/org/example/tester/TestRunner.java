@@ -43,8 +43,8 @@ public class TestRunner {
         // String originalTree = TreeUtils.toPrettyTree(parseTree, ruleNamesList);
 
         // Optimizer
-        Optimizer optimizer = new Optimizer();
-        optimizer.optimize(parseTree);
+//        Optimizer optimizer = new Optimizer();
+//        optimizer.optimize(parseTree);
 
         // Compiler
         List<String> files = new ArrayList<>();

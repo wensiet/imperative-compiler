@@ -6,3 +6,4 @@ routine isEven(number: integer): boolean is
 end;
 
 var chetire: boolean is isEven(4);
+print(chetire);
