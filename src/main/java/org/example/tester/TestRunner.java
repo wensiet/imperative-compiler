@@ -16,6 +16,7 @@ import java.io.InputStreamReader;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import java.util.Objects;
 
 import static java.lang.System.exit;
 
@@ -26,7 +27,7 @@ public class TestRunner {
     public static final String ANSI_GREEN = "\u001B[32m";
     private static final String filename = "Program";
 
-    public void runUnsafe(TestCase testCase) throws IOException, InterruptedException {
+    public void runUnsafe(TestCase testCase, Boolean useTestCase) throws IOException, InterruptedException {
         // Lexer
         ImperativeCompConstLexer lexer = new ImperativeCompConstLexer(CharStreams.fromString(testCase.input));
 
@@ -68,12 +69,12 @@ public class TestRunner {
         }
         JasMain jasMain = new JasMain();
         jasMain.run(files.toArray(new String[0]));
-        buildProgramProcess();
+        buildProgramProcess(testCase.params, useTestCase);
     }
 
     public void run(TestCase testCase) throws InterruptedException, IOException {
         try {
-            runUnsafe(testCase);
+            runUnsafe(testCase, true);
             System.out.println(ANSI_GREEN + "PASSED" + ANSI_RESET);
         } catch (Exception e) {
             Thread.sleep(500);
@@ -81,7 +82,7 @@ public class TestRunner {
         }
     }
 
-    private static void buildProgramProcess() throws IOException, InterruptedException {
+    private static void buildProgramProcess(RuntimeTestCaseParams params, Boolean useTestCase) throws IOException, InterruptedException {
         ProcessBuilder processBuilder = new ProcessBuilder("java", filename);
         Process process = processBuilder.start();
 
@@ -95,5 +96,14 @@ public class TestRunner {
             results.deleteCharAt(results.length() - 1);
         }
         System.out.println(results);
+        if (useTestCase) {
+            int exitCode = process.waitFor();
+            if (exitCode != params.expectedExitCode) {
+                throw new TestCaseException("Expected " + params.expectedExitCode + " exit code, but got: " + exitCode);
+            }
+            if (!Objects.equals(params.expectedOutput, results.toString())) {
+                throw new TestCaseException("Output does not match. Expected:\n" + params.expectedOutput + "\n got:\n" + results);
+            }
+        }
     }
 }

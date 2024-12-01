@@ -1,12 +1,15 @@
 package org.example;
 
+import org.example.tester.RuntimeTestCaseParams;
 import org.example.tester.TestCase;
+import org.example.tester.TestLoader;
 import org.example.tester.TestRunner;
 
 import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Paths;
+import java.util.List;
 
 import static java.lang.System.exit;
 
@@ -29,7 +32,7 @@ public class Main {
     private static void runSingleTest() throws InterruptedException, IOException {
         String input = readFile(new File("program"));
         TestRunner runner = new TestRunner();
-        runner.runUnsafe(new TestCase("program", input));
+        runner.runUnsafe(new TestCase("program", input, new RuntimeTestCaseParams(0, "1")), false);
     }
 
     public static void main(String[] args) throws InterruptedException {
