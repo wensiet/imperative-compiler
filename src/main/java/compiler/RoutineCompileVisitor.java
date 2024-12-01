@@ -6,9 +6,10 @@ import gen.ImperativeCompConstParser;
 public class RoutineCompileVisitor extends LoopsCompileVisitor {
     @Override
     public Void visitRoutine_declaration(ImperativeCompConstParser.Routine_declarationContext ctx) {
-        RefactoredRoutineDeclaration routineVisitor = new RefactoredRoutineDeclaration(userDefinedTypes);
+        RefactoredRoutineDeclaration routineVisitor = new RefactoredRoutineDeclaration(userDefinedTypes, labelCounter);
         routineVisitor.visit(ctx);
         routines.put(ctx.IDENT().getText(), routineVisitor.resultingRoutine);
+        labelCounter = routineVisitor.labelCounter;
         return null;
     }
 

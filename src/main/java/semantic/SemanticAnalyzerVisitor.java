@@ -13,6 +13,7 @@ public class SemanticAnalyzerVisitor extends ImperativeCompConstBaseVisitor<Void
     private final Map<String, String> symbolTable = new HashMap<>();
     private final ArrayList<Record> records = new ArrayList<>();
     private boolean inRoutine = false;
+    private boolean returnInRoutine = false;
 
     private void setNewObject(String varName) {
         if (symbolTable.containsKey(varName)) {
@@ -41,6 +42,10 @@ public class SemanticAnalyzerVisitor extends ImperativeCompConstBaseVisitor<Void
         inRoutine = true;
         saveRoutineParameters(ctx.parameter_declarations());
         visitChildren(ctx);
+        if (!returnInRoutine) {
+            throw new RuntimeException("Error: Routine '" + routineName + "' has no return value.");
+        }
+        returnInRoutine = false;
         inRoutine = false;
         removeRoutineParameters(ctx.parameter_declarations());
         return null;
@@ -125,6 +130,7 @@ public class SemanticAnalyzerVisitor extends ImperativeCompConstBaseVisitor<Void
         if (!inRoutine) {
             throw new RuntimeException("Error: 'return' used outside of a routine.");
         }
+        returnInRoutine = true;
         return visitChildren(ctx);
     }
 

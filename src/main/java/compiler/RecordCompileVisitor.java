@@ -20,10 +20,8 @@ public class RecordCompileVisitor extends CompileVisitor {
         appendln(".class public " + className);
         appendln(".super java/lang/Object");
 
-        // Define fields from the record_variable_declarations
         visit(ctx.record_variable_declarations());
 
-        // Create default constructor
         appendln(".method public <init>()V");
         appendln(".limit stack 100");
         appendln(".limit locals 100");
@@ -40,7 +38,6 @@ public class RecordCompileVisitor extends CompileVisitor {
             String fieldName = ctx.IDENT().getText();
             String fieldType = ctx.type().getText();
 
-            // Map type to Jasmin types
             appendln(".field public " + fieldName + " " + mapType(fieldType));
             userDefinedType.fields.put(fieldName, fieldType);
 

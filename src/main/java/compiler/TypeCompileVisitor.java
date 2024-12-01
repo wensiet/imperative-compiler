@@ -33,10 +33,8 @@ public class TypeCompileVisitor extends BodyCompileVisitor {
         String varType = ctx.type().getText();
         Integer idx = stackIndex++;
 
-        // Store the record variable in the variable table
         variableTable.put(varName, new Helper(idx, varType));
 
-        // Create a new record instance
         appendln("new " + varType);
         appendln("dup");
         appendln("invokespecial " + varType + "/<init>()V");

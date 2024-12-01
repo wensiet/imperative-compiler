@@ -53,7 +53,6 @@ public class LoopsCompileVisitor extends IfCompileVisitor {
 
     @Override
     public Void visitWhile_loop(ImperativeCompConstParser.While_loopContext ctx) {
-        // Header
         var startLoopLabel = generateLabel();
         var endLoopLabel = generateLabel();
         appendln(startLoopLabel + ":");
@@ -61,7 +60,6 @@ public class LoopsCompileVisitor extends IfCompileVisitor {
         appendln("ifeq " + endLoopLabel);
         visit(ctx.body());
 
-        // After body
         appendln("goto " + startLoopLabel);
         appendln(endLoopLabel + ":");
         return null;
