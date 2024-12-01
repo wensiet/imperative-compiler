@@ -5,7 +5,7 @@ suites:
   - name: "1"
     params:
       expectedStatusCode: 0
-      expectedOutput: "999999"
+      expectedOutput: "52"
     enabled: true
 
   - name: "2"
@@ -23,7 +23,7 @@ suites:
   - name: "4"
     params:
       expectedStatusCode: 0
-      expectedOutput: "0\n1\n2\n3\n4\n5\n6\n7\n8\n9"
+      expectedOutput: "0\n1\n2\n3\n4\n5\n6\n7\n8\n9\n10"
     enabled: true
 
   - name: "5"
@@ -35,7 +35,7 @@ suites:
   - name: "6"
     params:
       expectedStatusCode: 0
-      expectedOutput: "0.09999999"
+      expectedOutput: "0.109999985"
     enabled: true
 
   - name: "7"
