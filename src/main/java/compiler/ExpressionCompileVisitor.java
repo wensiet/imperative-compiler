@@ -117,10 +117,19 @@ public class ExpressionCompileVisitor extends BaseCompileVisitor {
             visit(ctx.summand(1));
 
             // Handle the operator based on the token (PLUS or MINUS)
+            var varType = variableTable.get(ctx.summand().get(0).primary().modifiable_primary().IDENT().getText()).type;
             if (ctx.PLUS() != null) {
-                appendln("iadd");  // addition
+                if (varType.equals("integer")) {
+                    appendln("iadd");
+                } else if (varType.equals("real")) {
+                    appendln("fadd");
+                }
             } else if (ctx.MINUS() != null) {
-                appendln("isub");  // subtraction
+                if (varType.equals("integer")) {
+                    appendln("isub");
+                } else if (varType.equals("real")) {
+                    appendln("fsub");
+                }
             }
         }
         return null;
@@ -216,11 +225,9 @@ public class ExpressionCompileVisitor extends BaseCompileVisitor {
         if (currentType.contains("array")) {
             if (currentType.contains("integer")) {
                 appendln("iaload" + " ; integer array load");
-            }
-            else if (currentType.contains("real")) {
+            } else if (currentType.contains("real")) {
                 appendln("faload" + " ; float array load");
-            }
-            else if (currentType.contains("bool")) {
+            } else if (currentType.contains("bool")) {
                 appendln("baload" + " ; boolean array load");
             }
         }
