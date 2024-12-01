@@ -17,6 +17,8 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
+import static java.lang.System.exit;
+
 public class TestRunner {
 
     public static final String ANSI_RESET = "\u001B[0m";
