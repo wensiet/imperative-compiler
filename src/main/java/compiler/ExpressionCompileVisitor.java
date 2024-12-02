@@ -202,13 +202,15 @@ public class ExpressionCompileVisitor extends BaseCompileVisitor {
         if (ctx.expression() != null) {
             visitExpression(ctx.expression());
         }
-        if (currentType.contains("array")) {
-            if (currentType.contains("integer")) {
-                appendln("iaload" + " ; integer array load");
-            } else if (currentType.contains("real")) {
-                appendln("faload" + " ; float array load");
-            } else if (currentType.contains("bool")) {
-                appendln("baload" + " ; boolean array load");
+        if (ctx.getChildCount() > 1) {
+            if (currentType.contains("array")) {
+                if (currentType.contains("integer")) {
+                    appendln("iaload" + " ; integer array load");
+                } else if (currentType.contains("real")) {
+                    appendln("faload" + " ; float array load");
+                } else if (currentType.contains("bool")) {
+                    appendln("baload" + " ; boolean array load");
+                }
             }
         }
         return null;

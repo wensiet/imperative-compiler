@@ -1,0 +1,14 @@
+routine isEven(number: integer): boolean is
+	if number % 2 = 0 then
+		return true;
+	else
+	    return false;
+	end;
+end;
+
+var cond: boolean is true;
+if cond then
+    print(isEven(1));
+else
+    print(isEven(0));
+end;

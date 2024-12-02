@@ -44,9 +44,19 @@ public class RefactoredRoutineDeclaration extends CompileVisitor {
         signature.append(")");
 
         signature.append(returnType);
+
         resultingRoutine.signature = signature.toString();
 
-        appendln(signature.toString());
+        if (resultingRoutine.signature.contains("array")) {
+            if (resultingRoutine.signature.contains("integer") | resultingRoutine.signature.contains("boolean")) {
+                resultingRoutine.signature = resultingRoutine.signature.replaceAll("L.*?integer;", "[I");
+            } else if (resultingRoutine.signature.contains("real")) {
+                resultingRoutine.signature = resultingRoutine.signature.replaceAll("L.*?real;", "[F");
+            }
+        }
+
+        appendln(resultingRoutine.signature);
+
         appendln(".limit stack 100");
         appendln(".limit locals 100");
 

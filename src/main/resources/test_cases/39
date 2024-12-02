@@ -1,0 +1,8 @@
+routine ageStatus(arr: array [3] integer): boolean is
+     print(arr[1]);
+     return true;
+end;
+
+var a: array [3] integer is [1, 2, 3];
+
+ageStatus(a);

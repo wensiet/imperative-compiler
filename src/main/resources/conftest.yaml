@@ -97,3 +97,21 @@ suites:
       expectedStatusCode: 0
       expectedOutput: "52"
     enabled: true
+
+  - name: "39"
+    params:
+      expectedStatusCode: 0
+      expectedOutput: "2"
+    enabled: true
+
+  - name: "40"
+    params:
+      expectedStatusCode: 0
+      expectedOutput: "1\n2\n3"
+    enabled: true
+
+  - name: "41"
+    params:
+      expectedStatusCode: 0
+      expectedOutput: "0"
+    enabled: true

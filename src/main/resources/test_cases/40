@@ -1,0 +1,10 @@
+routine printArray(arr: array [3] integer): boolean is
+ for i in 0..2 loop
+        print(arr[i]);
+    end;
+ return true;
+end;
+
+var a: array [3] integer is [1, 2, 3];
+
+printArray(a);
